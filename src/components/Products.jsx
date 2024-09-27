@@ -1,28 +1,31 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react';
 
+function Products() {
+  const [products, setProducts] = useState([]);
 
-function Products(){
-    const [products, setProducts] = useState([])
+  useEffect(() => {
+    fetch('http://localhost:2445/api/products')
+      .then(response => response.json())
+      .then(data => setProducts(data))
+      .catch(error => console.error('Error fetching products:', error));
+  }, []);
 
-    useEffect(()=>{
-        const fetchProducts = async()=>{
-            const response= await axios.get('http://localhost:8080/api/products')
-            setProducts(response.data)
-        }
-        fetchProducts()
-    },[])
-    return(
-        <div>
-            <h1>products</h1>
-            <ul>
-                {products.map(product => (
-                <li key={product.id}>
-                    {product.name} - ${product.price}
-                </li>
-                ))}
-            </ul>
-        </div>
-    )
+  return (
+    <div>
+      <h1>Products</h1>
+      <ul>
+        {products.length > 0 ? (
+          products.map(product => (
+            <li key={product.id}>
+              {product.name} - {product.price}
+            </li>
+          ))
+        ) : (
+          <p>No products available</p>
+        )}
+      </ul>
+    </div>
+  );
 }
 
-export default Products
+export default Products;

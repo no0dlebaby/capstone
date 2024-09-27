@@ -4,7 +4,7 @@ const app = express()
 const pg = require('pg')
 const cors = require('cors')
 require('dotenv').config()
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 2445;
 
 const client = new pg.Client(process.env.DATABASE_URL||'postgres://postgres:postgres@localhost:5432/new_careersim_db')
 
@@ -16,6 +16,7 @@ const jwt = require('jsonwebtoken');
 
 
 const init = async()=>{
+    console.log("initializing db")
     await client.connect()
     let SQL =`
     DROP TABLE IF EXISTS users CASCADE;
@@ -53,17 +54,17 @@ const init = async()=>{
     await client.query(SQL)
     console.log('tables created')
 
-    SQL=`
+    const SQL2=`
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'javascript');
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'HTML');
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'CSS');
 
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'this is a note about JavaScript', 29.99, 100, (SELECT id FROM categories WHERE name='javascript'));
+    VALUES (gen_random_uuid(), 'nameone', 'this is a note about JavaScript', 29.99, 100, (SELECT id FROM categories WHERE name='javascript'));
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'This is a note about HTML', 19.99, 200, (SELECT id FROM categories WHERE name='HTML'));
+    VALUES (gen_random_uuid(), 'nametwo', 'This is a note about HTML', 19.99, 200, (SELECT id FROM categories WHERE name='HTML'));
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'This is a note about CSS', 24.99, 150, (SELECT id FROM categories WHERE name='CSS'));
+    VALUES (gen_random_uuid(), 'namethree', 'This is a note about CSS', 24.99, 150, (SELECT id FROM categories WHERE name='CSS'));
 
 
     INSERT INTO users (id, username, password, email)
@@ -82,6 +83,9 @@ const init = async()=>{
     INSERT INTO orders (id, user_id, total)
     VALUES (gen_random_uuid(), (SELECT id FROM users WHERE username='user3'), 19.99);
     `
+
+    client.query(SQL2)
+    console.log('data seeded');
     app.listen(PORT, ()=>{
         console.log('connected to the server')
     })
