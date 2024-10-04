@@ -8,13 +8,18 @@ const PORT = process.env.PORT || 2445;
 
 const client = new pg.Client(process.env.DATABASE_URL||'postgres://postgres:postgres@localhost:5432/new_careersim_db')
 
-app.use(cors());
+const { faker } = require('@faker-js/faker');
+
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json())
 app.use(require('morgan')('dev'))
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 
-
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const init = async()=>{
     console.log("initializing db")
     await client.connect()
@@ -23,6 +28,7 @@ const init = async()=>{
     DROP TABLE IF EXISTS products CASCADE;
     DROP TABLE IF EXISTS orders CASCADE;
     DROP TABLE IF EXISTS categories CASCADE;
+    DROP TABLE IF EXISTS cart CASCADE;
     
     CREATE TABLE users(
     id UUID PRIMARY KEY,
@@ -45,34 +51,43 @@ const init = async()=>{
     category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT NOW());
 
+    ALTER TABLE products ADD COLUMN photo_url TEXT;
+
     CREATE TABLE orders (
     id UUID PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     total DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW())
+    created_at TIMESTAMP DEFAULT NOW());
+
+    CREATE TABLE cart (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (user_id, product_id))
     `
     await client.query(SQL)
     console.log('tables created')
 
+
     const SQL2=`
-    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'javascript');
-    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'HTML');
-    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'CSS');
+    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'food');
+    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'toys');
+    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'beds');
 
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'nameone', 'this is a note about JavaScript', 29.99, 100, (SELECT id FROM categories WHERE name='javascript'));
+    VALUES (gen_random_uuid(), 'Dog Toy Bundle', 'This bundle comes with 6 toys!', 29.99, 100, (SELECT id FROM categories WHERE name='toys'));
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'nametwo', 'This is a note about HTML', 19.99, 200, (SELECT id FROM categories WHERE name='HTML'));
+    VALUES (gen_random_uuid(), 'Puppy Food', 'Small kibble bites for puppies.', 19.99, 200, (SELECT id FROM categories WHERE name='food'));
     INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'namethree', 'This is a note about CSS', 24.99, 150, (SELECT id FROM categories WHERE name='CSS'));
+    VALUES (gen_random_uuid(), 'Fluffy Cloud Bed', 'Luxurious bed for spoiled dogs.', 24.99, 150, (SELECT id FROM categories WHERE name='beds'));
 
 
     INSERT INTO users (id, username, password, email)
-    VALUES (gen_random_uuid(), 'user1', 'password1', 'user1@example.com');
+    VALUES (gen_random_uuid(), 'soph', '${await bcrypt.hash('soph', 10)}', 'soph@email.com');
     INSERT INTO users (id, username, password, email)
-    VALUES (gen_random_uuid(), 'user2', 'password2', 'user2@example.com');
+    VALUES (gen_random_uuid(), 'noodle', '${await bcrypt.hash('noodle', 10)}', 'noodle@email.com');
     INSERT INTO users (id, username, password, email)
-    VALUES (gen_random_uuid(), 'user3', 'password3', 'user3@example.com');
+    VALUES (gen_random_uuid(), 'zuri', '${await bcrypt.hash('zuri', 10)}', 'zuri@email.com');
 
     INSERT INTO orders (id, user_id, total)
     VALUES (gen_random_uuid(), (SELECT id FROM users WHERE username='user1'), 49.99);
@@ -84,11 +99,41 @@ const init = async()=>{
     VALUES (gen_random_uuid(), (SELECT id FROM users WHERE username='user3'), 19.99);
     `
 
-    client.query(SQL2)
+    await client.query(SQL2)
     console.log('data seeded');
     app.listen(PORT, ()=>{
         console.log('connected to the server')
     })
+
+//putting in fake products
+const seedProducts = async () => {
+  const categories = ['Toys', 'Food', 'Accessories', 'Beds'];
+  const petProductNames = [
+    'Chew Toy', 'Squeaky Ball', 'Pet Bed', 'Cat Scratching Post', 'Dog Leash',
+    'Hamster Wheel', 'Bird Cage', 'Aquarium Ornament', 'Pet Shampoo', 'Dog Treats',
+    'Cat Food', 'Dog Bowl', 'Pet Carrier', 'Pet Blanket', 'Bird Feeder'
+  ];
+  
+  for (let i = 0; i < 100; i++) {
+    const name = petProductNames[Math.floor(Math.random() * petProductNames.length)];
+    const description = faker.lorem.sentence();
+    const price = (Math.random() * (50 - 5) + 5).toFixed(2)
+    const stock = faker.number.int({ min: 0, max: 500 });
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const photoUrl = `https://placedog.net/500/500?id=${i}`
+
+    const SQL = `
+      INSERT INTO products (id, name, description, price, stock, category_id, photo_url)
+      VALUES (gen_random_uuid(), $1, $2, $3, $4, (SELECT id FROM categories WHERE name = $5), $6)
+    `;
+    
+    await client.query(SQL, [name, description, price, stock, category, photoUrl]);
+  }
+  console.log('100 fake pet products inserted');
+};
+
+await seedProducts();
+
 }
 
 const verifyToken = (req, res, next) => {
@@ -117,11 +162,15 @@ app.get('/api/products', async (req, res) => {
     }
 })
 //get details of a specific product
-app.get('/api/products/:id', async (req, res) => {
-    try {
-        const result = await client.query('SELECT * FROM products WHERE id = $1', [id])
+app.get('/api/products/:id', async (req,res)=>{
+    try{
+        const{id}= req.params;
+        const result=await client.query('SELECT * FROM products WHERE id =$1', [id])
+        if (result.rows.length===0) {
+            return res.status(404).json({error:'product not found'})
+        }
         res.json(result.rows[0])
-    } catch (err) {
+    } catch(err){
         res.status(500).json({error:err.message})
     }
 })
@@ -139,6 +188,7 @@ app.get('/api/categories', async (req, res, next)=>{
 app.get('/api/users/orders', verifyToken, async (req, res)=>{
     try {
         const SQL = `SELECT * FROM users`
+        const userId = req.user.id;
         const response = await client.query(SQL, [userId])
         res.send(response.rows)
     } catch (error) {
@@ -176,22 +226,26 @@ app.post('/api/users', async (req, res)=>{
         res.status(500).json({ error: error.message });
     }
 })
-// post user(login) 
+// login
 app.post('/api/users/login', async (req, res)=>{
     try {
-        const { email, password } = req.body;
-        const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+        const { email, password } = req.body
+        const result = await client.query('SELECT * FROM users WHERE email = $1', [email])
     
-        if (result.rows.length === 0) return res.status(401).json({ error: 'user not found' });
+        if (result.rows.length === 0){
+            console.log('User not found');
+            return res.status(401).json({ error: 'user not found' })
+        }
         
         const user = result.rows[0];
         const isMatch = await bcrypt.compare(password, user.password);
         
-        if (!isMatch) return res.status(401).json({ error: 'wrong password!' });
+        if (!isMatch) {
+            return res.status(401).json({ error: 'wrong password!' })}
         
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
-      } catch (error) {
+      } catch (error) {console.error(error);
         res.status(500).json({ error: error.message });
       }
     })
@@ -236,8 +290,8 @@ app.put('/api/users', verifyToken, async (req, res)=>{
 // put orders (update order: such as updating delivery details)
 app.put('/api/orders', async (req, res, next)=>{
     try {
-        const SQL = ``
-        const response = await client.query()
+        const SQL = `UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING *`
+        const response = await client.query(SQL, [username, email, hashedPassword, userId])
         res.send(response.rows)
     } catch (error) {
     }
@@ -297,7 +351,6 @@ app.delete('/api/users', async (req, res, next)=>{
     } catch (error) {
     }
 })
-
 
 
  init()

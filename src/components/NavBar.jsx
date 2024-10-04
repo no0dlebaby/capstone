@@ -1,15 +1,20 @@
 import React from 'react'
-import {Link} from 'react-router-dom'
+import { Link} from 'react-router-dom'
+import '../App.css'
 
-const Header = () => {
-    return(
+const Header = ({loggedIn}) => {
+    return (
         <nav>
-            <Link to="/">home</Link>
-            <Link to="/categories">categories</Link>
-            <Link to="/login">login</Link>
-            <Link to="/cart">cart</Link>
+            <Link to="/">Home</Link>
+            <Link to="/categories">Categories</Link>
+            {loggedIn ? (
+                    <Link to="/profile">Profile</Link>
+            ) : (
+                <Link to="/login">Login</Link>
+            )}
+            <Link to="/cart">Cart</Link>
         </nav>
-    )
-}
+    );
+};
 
-export default Header
+export default Header;

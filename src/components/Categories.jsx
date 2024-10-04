@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import '../App.css';
+
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
