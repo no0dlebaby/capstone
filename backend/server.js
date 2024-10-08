@@ -1,13 +1,12 @@
 const express = require('express')
 const app = express()
-
 const pg = require('pg')
 const cors = require('cors')
 require('dotenv').config()
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const PORT = process.env.PORT || 2445;
-
 const client = new pg.Client(process.env.DATABASE_URL||'postgres://postgres:postgres@localhost:5432/new_careersim_db')
-
 const { faker } = require('@faker-js/faker');
 
 
@@ -18,10 +17,8 @@ app.use(cors({
 app.use(express.json())
 app.use(require('morgan')('dev'))
 
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+
 const init = async()=>{
-    console.log("initializing db")
     await client.connect()
     let SQL =`
     DROP TABLE IF EXISTS users CASCADE;
@@ -66,14 +63,11 @@ const init = async()=>{
     PRIMARY KEY (user_id, product_id))
     `
     await client.query(SQL)
-    console.log('tables created')
-
 
     const SQL2=`
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'food');
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'toys');
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'beds');
-
 
 
     INSERT INTO users (id, username, password, email)
@@ -103,7 +97,7 @@ const seedProducts = async () => {
     'Cat Food', 'Dog Bowl', 'Pet Carrier', 'Pet Blanket', 'Dog Bandana'
   ];
   
-  for (let i = 1; i < 100; i++) {
+  for (let i = 1; i < 19; i++) {
     const name = petProductNames[Math.floor(Math.random() * petProductNames.length)];
     const description = faker.lorem.sentence();
     const price = (Math.random() * (50 - 5) + 5).toFixed(2)
@@ -179,61 +173,22 @@ app.get('/api/categories', async (req, res, next)=>{
         res.status(500).send({ error: error.message });
     }
 })
-//get orders from specific users
-app.get('/api/users/orders', verifyToken, async (req, res)=>{
-    try {
-        const SQL = `SELECT * FROM users`
-        const userId = req.user.id;
-        const response = await client.query(SQL, [userId])
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
 
 // get users cart
 app.get('/api/users/cart', verifyToken, async (req, res )=>{
     try {
         const userId= req.user.id;
         const SQL = `
-                     SELECT c.product_id, p.name, p.price, c.quantity 
-                     FROM cart c 
-                     JOIN products p ON c.product_id = p.id 
-                     WHERE c.user_id = $1`
+           SELECT c.product_id, p.name, p.price, c.quantity 
+           FROM cart c
+           JOIN products p ON c.product_id = p.id 
+           WHERE c.user_id = $1`
         const response = await client.query(SQL, [userId])
         res.send(response.rows)
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 })
-// Get past orders for a specific user
-app.get('/api/users/past-orders', verifyToken, async (req, res) => {
-    const userId = req.user.id;
-    try {
-      const SQL = `
-      SELECT o.id AS order_id, o.total, o.created_at,
-        json_agg(json_build_object(
-          'product_id', p.id,
-          'name', p.name,
-          'price', p.price,
-          'quantity', c.quantity
-        )) AS items
-      FROM orders o
-      JOIN cart c ON o.id = c.order_id  -- assuming cart table also has order_id column
-      JOIN products p ON c.product_id = p.id
-      WHERE o.user_id = $1
-      GROUP BY o.id, o.total, o.created_at
-      ORDER BY o.created_at DESC
-    `;
-      const result = await client.query(SQL, [userId]);
-      res.json(result.rows);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-
-
-
 
 
 
@@ -300,28 +255,21 @@ app.post('/api/cart', verifyToken, async (req, res)=>{
         res.status(500).json({ error: error.message });
     }
 })
-// put users (profile updates)
-app.put('/api/users', verifyToken, async (req, res)=>{
-    try {
-        const { username, email, password } = req.body;
-        const userId = req.user.id;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const SQL = `UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4 RETURNING *`
-        const response = await client.query()
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
-// put orders
-app.put('/api/orders', async (req, res, next)=>{
-    try {
-        const SQL = `UPDATE orders SET total = $1 WHERE id = $2 RETURNING *;`
-        const response = await client.query(SQL, [username, email, hashedPassword, userId])
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
-// put cart (update quantity of items in cart)
+// update a users total
+app.put('/api/orders', verifyToken, async (req, res) => {
+  const { orderId, total } = req.body
+  try {
+      const SQL = `UPDATE orders SET total = $1 WHERE id = $2 RETURNING *;`;
+      const response = await client.query(SQL, [total, orderId])
+      if (response.rows.length === 0) {
+          return res.status(404).json({ error: 'Order not found' });
+      }
+      res.json(response.rows[0])
+  } catch (error) {
+      res.status(500).json({ error: error.message })
+  }
+});
+//update quantity of items in cart
 app.put('/api/cart', verifyToken, async (req, res) => {
     const { productId, quantity } = req.body;
     const userId = req.user.id;
@@ -342,15 +290,6 @@ app.put('/api/products', async (req, res, next) => {
 });
 
 
-// delete users account
-app.delete('/api/users', async (req, res, next)=>{
-    try {
-        const SQL = ``
-        const response = await client.query()
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
 // delete cart (remove an item in cart)
 app.delete('/api/cart/:productId', verifyToken, async (req, res) => {
     const { productId } = req.params;
@@ -363,24 +302,6 @@ app.delete('/api/cart/:productId', verifyToken, async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
-// delete orders
-app.delete('/api/orders', async (req, res, next)=>{
-    try {
-        const SQL = ``
-        const response = await client.query()
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
-//delete products (admin only)
-app.delete('/api/users', async (req, res, next)=>{
-    try {
-        const SQL = ``
-        const response = await client.query()
-        res.send(response.rows)
-    } catch (error) {
-    }
-})
 
 
  init()

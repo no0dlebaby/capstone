@@ -5,50 +5,35 @@
   text-align: center;
   background-color: rgb(65, 34, 0);
   color: rgb(193, 148, 92);
+  font-family: "Indie Flower", cursive;
+  font-weight: 400;
+  font-style: normal;
 }
+
 
 body {
   margin: 0;
   padding: 0;
-}
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
 }
 
 .card {
   padding: 2em;
 }
 
-.read-the-docs {
-  color: #888;
+.logo {
+  color: #d5d5d5;
+  font-size: 400%;
+  border: 2px white solid;
+  border-radius:65% 35% 66% 34% / 48% 59% 41% 52%;
+  margin-left: 25%;
+  margin-right: 25%;
+  padding: 3%;
 }
 
 nav {
+  margin-top: 5%;
+  margin-bottom: 5%;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -57,7 +42,7 @@ nav {
 }
 
 nav a {
-  color: #c1945c;
+  color: #ffffff;
   text-decoration: none;
   font-size: 1.2rem;
   padding: 0.5rem 1rem;
@@ -67,6 +52,24 @@ nav a {
 nav a:hover {
   color: #f1b24a;
 }
+
+.home-button {
+  border: 2px white, solid;
+  border-radius: 79% 21% 37% 63% / 42% 66% 34% 58%;
+}
+.categories-button {
+  border: 2px white, solid;
+  border-radius: 66% 34% 67% 33% / 42% 37% 63% 58%;
+}
+.profile-button {
+  border: 2px white, solid;
+  border-radius: 53% 47% 36% 64% / 69% 30% 70% 31%;
+}
+.cart-button {
+  border: 2px white, solid;
+  border-radius: 75% 25% 77% 23% / 46% 59% 41% 54%;
+}
+
 
 /* Product Listing */
 .products-container {
@@ -122,6 +125,28 @@ nav a:hover {
   cursor: pointer;
   transition: background-color 300ms;
   margin-top: 1rem;
+}
+
+.log-out-button{
+  background-color: #f1b24a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 300ms;
+  margin-top: 1rem;
+}
+.cart-buttons {
+  background-color: #f1b24a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 300ms;
+  margin-top: 1rem;
+  margin: 1%;
 }
 
 .product-card button:hover {
@@ -228,7 +253,11 @@ form button:hover {
 /* Product Details Page */
 .product-details {
   margin: 2rem;
-  text-align: left;
+  text-align: center;
+  border: 2px white solid;
+  border-radius: 33% 67% 53% 47% / 35% 51% 49% 65% ;
+  padding: 10%;
+  margin-top: 10%;
 }
 
 .product-details img {
@@ -244,7 +273,7 @@ form button:hover {
 
 .product-details p {
   font-size: 1.1rem;
-  color: #555;
+  color: #ffffff;
 }
 
 .product-details .price {
@@ -266,4 +295,52 @@ form button:hover {
 
 .product-details button:hover {
   background-color: #c1945c;
+}
+
+
+/* footr section*/
+.footer {
+  text-align: center;
+  margin-top: 10%;
+  background-color: #ffffff;
+  padding: 80px;
+  text-align: center;
+  border-radius:61% 39% 73% 27% / 74% 48% 52% 26%  ;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+  margin: 0 20px;
+}
+
+.footer-section h3 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.footer-section ul {
+  list-style-type: none;
+  padding: 0;
+  
+}
+
+.footer-section ul li {
+  margin: 5px 0;
+  color: rgb(114, 114, 255);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #6c757d;
 }
