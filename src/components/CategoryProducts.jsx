@@ -1,36 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 
-function Products({ addToCart }) {
-  const [products, setProducts] = useState([])
-  const [addedToCart, setAddedToCart] = useState({})
+function CategoryProducts({ addToCart }) {
+  const { categoryId } = useParams(); // Get the category ID from the URL
+  const [products, setProducts] = useState([]);
+  const [addedToCart, setAddedToCart] = useState({});
+
   const handleAddToCart = (product) => {
-    addToCart(product)
+    addToCart(product);
 
     setAddedToCart((prevState) => ({
       ...prevState,
       [product.id]: true,
-    }))
+    }));
 
     setTimeout(() => {
       setAddedToCart((prevState) => ({
         ...prevState,
         [product.id]: false,
-      }))
-    }, 2000)
-  }
+      }));
+    }, 2000);
+  };
 
   useEffect(() => {
-    fetch('http://localhost:2445/api/products')
-      .then(response => response.json())
-      .then(data => {console.log(data)
-        setProducts(data)})
-      .catch(error => console.error('error fetching products:', error))
-  }, [])
+    const fetchCategoryProducts = async () => {
+      try {
+        const response = await fetch(`http://localhost:2445/api/products?category=${categoryId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching category products:', error);
+      }
+    };
+
+    fetchCategoryProducts();
+  }, [categoryId]);
 
   return (
     <div className="products-container">
+      <h1>Products in this Category</h1>
       {products.length > 0 ? (
         products.map(product => (
           <div className="product-card" key={product.id}>
@@ -48,10 +60,10 @@ function Products({ addToCart }) {
           </div>
         ))
       ) : (
-        <p>no products available</p>
+        <p>No products available in this category.</p>
       )}
     </div>
   );
 }
 
-export default Products;
+export default CategoryProducts;

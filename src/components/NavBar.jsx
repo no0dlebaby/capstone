@@ -4,16 +4,19 @@ import '../App.css'
 
 const Header = ({loggedIn}) => {
     return (
+        <div>
+            <h1 className='logo'>cozy pet shop</h1>
         <nav>
-            <Link to="/">Home</Link>
-            <Link to="/categories">Categories</Link>
+            <Link className='home-button' to="/">Home</Link>
+            <Link className='categories-button' to="/categories">Categories</Link>
             {loggedIn ? (
-                    <Link to="/profile">Profile</Link>
+            <Link className='profile-button' to="/profile">Profile</Link>
             ) : (
-                <Link to="/login">Log in</Link>
+            <Link className='profile-button' to="/login">Log in</Link>
             )}
-            <Link to="/cart">Cart</Link>
+            <Link className='cart-button' to="/cart">Cart</Link>
         </nav>
+        </div>
     );
 };
 

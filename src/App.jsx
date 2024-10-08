@@ -9,6 +9,8 @@ import Cart from './components/Cart'
 import NavBar from './components/NavBar';
 import Profile from './components/Profile'
 import Register from './components/Register';
+import CategoryProducts from './components/CategoryProducts';
+import Footer from './components/Footer';
 
 
 function App() {
@@ -51,11 +53,13 @@ function App() {
         <Route path="/" element={<Products addToCart={addToCart}/>} />
         <Route path="/products/:id" element={<ProductDetails addToCart={addToCart}/>} />
         <Route path="/categories" element={<Categories />} />
+        <Route path="/categories/:id" element={<CategoryProducts addToCart={addToCart}/>} />
         <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
         <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems}/>} />
         <Route path="/profile" element={<Profile setLoggedIn={setLoggedIn} />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      <Footer />
     </div>
   );
 }

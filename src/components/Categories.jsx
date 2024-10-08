@@ -1,24 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
-import FoodProducts from './FoodProducts';
 
 function Categories() {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
         const response = await fetch('http://localhost:2445/api/categories');
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
         const data = await response.json();
         setCategories(data);
       } catch (error) {
-        console.error('rror fetching categories:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCategories();
   }, []);
+
+  if (loading) {
+    return <p>Loading categories...</p>;
+  }
+
+  if (error) {
+    return <p>Error fetching categories: {error}</p>;
+  }
 
   return (
     <div className="categories-container">
@@ -33,7 +48,7 @@ function Categories() {
           </Link>
         ))
       ) : (
-        <p>no categories available</p>
+        <p>No categories available</p>
       )}
     </div>
   );

@@ -50,14 +50,15 @@ const Cart = ({ cartItems, setCartItems }) => {
             <p>Quantity: {item.quantity}</p>
           </div>
           <div className="cart-item-controls">
-            <button onClick={() => decreaseQuantity(item.id)}>-</button>
-            <button onClick={() => increaseQuantity(item.id)}>+</button>
-            <button onClick={() => handleRemove(item.id)}>Remove</button>
+            <button className='cart-buttons' onClick={() => decreaseQuantity(item.id)}>-</button>
+            <button className='cart-buttons' onClick={() => increaseQuantity(item.id)}>+</button>
+            <button className='cart-buttons' onClick={() => handleRemove(item.id)}>Remove</button>
           </div>
         </div>
       ))}
       <h3>Total: ${getTotalPrice().toFixed(2)}</h3>
-      <button className="checkout-button" onClick={handleCheckout}>Checkout</button>
+      <button
+      className='cart-buttons' onClick={handleCheckout}>Checkout</button>
     </div>
   );
 };
