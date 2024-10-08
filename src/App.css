@@ -135,7 +135,7 @@ nav a:hover {
   margin-top: 2rem;
 }
 
-.category-btn {
+.category-button {
   background-color: #c1945c;
   color: white;
   padding: 1rem;
@@ -146,7 +146,7 @@ nav a:hover {
   transition: background-color 300ms;
 }
 
-.category-btn:hover {
+.category-button:hover {
   background-color: #f1b24a;
 }
 

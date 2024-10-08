@@ -9,7 +9,7 @@ import Cart from './components/Cart'
 import NavBar from './components/NavBar';
 import Profile from './components/Profile'
 import Register from './components/Register';
-import PastOrders from './components/PastOrders';
+
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -55,7 +55,6 @@ function App() {
         <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems}/>} />
         <Route path="/profile" element={<Profile setLoggedIn={setLoggedIn} />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/orders" element={<PastOrders />} />
       </Routes>
     </div>
   );

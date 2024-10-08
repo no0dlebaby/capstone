@@ -31,7 +31,7 @@ const ProductDetails = ({addToCart}) => {
 
   return (
     <div className="product-details">
-      <img src={product.image_url} alt={product.name} />
+      <img img style={{ width: '200px', height: 'auto' }} src={product.photo_url} alt={product.name} />
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <p className="price">${product.price}</p>

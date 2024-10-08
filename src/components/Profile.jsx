@@ -45,8 +45,7 @@ const Profile = ({ setLoggedIn }) => {
     return (
         <div>
             <h1>User Profile</h1>
-            <p>Thank you for using Inu!</p>
-            <button onClick={handleViewOrders}>Click here to see past orders</button>
+            <p>Thank you for using Inu Pet Shop!</p>
             <br />
             <button onClick={handleLogout}>Log out</button>
         </div>

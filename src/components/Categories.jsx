@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../App.css';
+import FoodProducts from './FoodProducts';
 
 function Categories() {
   const [categories, setCategories] = useState([]);
@@ -12,7 +13,7 @@ function Categories() {
         const data = await response.json();
         setCategories(data);
       } catch (error) {
-        console.error('error fetching categories:', error);
+        console.error('rror fetching categories:', error);
       }
     };
 
@@ -22,6 +23,7 @@ function Categories() {
   return (
     <div className="categories-container">
       <h1>Categories</h1>
+      <br />
       {categories.length > 0 ? (
         categories.map((category) => (
           <Link key={category.id} to={`/categories/${category.id}`}>

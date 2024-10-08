@@ -74,12 +74,6 @@ const init = async()=>{
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'toys');
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'beds');
 
-    INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'Dog Toy Bundle', 'This bundle comes with 6 toys!', 29.99, 100, (SELECT id FROM categories WHERE name='toys'));
-    INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'Puppy Food', 'Small kibble bites for puppies.', 19.99, 200, (SELECT id FROM categories WHERE name='food'));
-    INSERT INTO products (id, name, description, price, stock, category_id)
-    VALUES (gen_random_uuid(), 'Fluffy Cloud Bed', 'Luxurious bed for spoiled dogs.', 24.99, 150, (SELECT id FROM categories WHERE name='beds'));
 
 
     INSERT INTO users (id, username, password, email)
@@ -109,7 +103,7 @@ const seedProducts = async () => {
     'Cat Food', 'Dog Bowl', 'Pet Carrier', 'Pet Blanket', 'Dog Bandana'
   ];
   
-  for (let i = 0; i < 100; i++) {
+  for (let i = 1; i < 100; i++) {
     const name = petProductNames[Math.floor(Math.random() * petProductNames.length)];
     const description = faker.lorem.sentence();
     const price = (Math.random() * (50 - 5) + 5).toFixed(2)
@@ -124,7 +118,6 @@ const seedProducts = async () => {
     
     await client.query(SQL, [name, description, price, stock, category, photoUrl]);
   }
-  console.log('100 fake pet products inserted');
 };
 
 await seedProducts();
@@ -342,10 +335,10 @@ app.put('/api/cart', verifyToken, async (req, res) => {
   });
 //put products 
 app.put('/api/products', async (req, res, next) => {
-  const { id, name, description, price, stock, category_id } = req.body;
-  const SQL = `UPDATE products SET name = $1, description = $2, price = $3, stock = $4, category_id = $5 WHERE id = $6 RETURNING *`;
-  const response = await client.query(SQL, [name, description, price, stock, category_id, id]);
-  res.send(response.rows);
+    const { id, name, description, price, stock, category_id } = req.body;
+    const SQL = `UPDATE products SET name = $1, description = $2, price = $3, stock = $4, category_id = $5 WHERE id = $6 RETURNING *`;
+    const response = await client.query(SQL, [name, description, price, stock, category_id, id]);
+    res.send(response.rows);
 });
 
 

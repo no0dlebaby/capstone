@@ -43,7 +43,7 @@ const Cart = ({ cartItems, setCartItems }) => {
       <h2>Your Cart</h2>
       {cartItems.map((item) => (
         <div key={item.id} className="cart-item">
-          <img src={item.image_url} alt={item.name} />
+          <img style={{ width: '200px', height: 'auto' }} src={item.photo_url} alt={item.name} />
           <div>
             <h3>{item.name}</h3>
             <p className="price">${item.price}</p>
