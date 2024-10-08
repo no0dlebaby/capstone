@@ -8,35 +8,56 @@ import Login from './components/Login'
 import Cart from './components/Cart'
 import NavBar from './components/NavBar';
 import Profile from './components/Profile'
+import Register from './components/Register';
+import PastOrders from './components/PastOrders';
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [cartItems, setCartItems] = useState([])
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [cartItems, setCartItems] = useState(() => {
+
+    const storedCartItems = localStorage.getItem('cartItems');
+    return storedCartItems ? JSON.parse(storedCartItems) : [];
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-        setLoggedIn(!!token)
+      setLoggedIn(true);
     }
-}, [])
+  }, []);
 
-const addToCart = (productId)=>{
-  setCartItems((prevItems)=> [...prevItems, productId])
-}
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
 
+  const addToCart = (product) => {
+    setCartItems((prevItems) => {
+      const itemInCart = prevItems.find(item => item.id === product.id);
+
+      if (itemInCart) {
+        return prevItems.map(item =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        return [...prevItems, { ...product, quantity: 1 }];
+      }
+    });
+  };
 
   return (
     <div>
       <NavBar loggedIn={loggedIn} />
       <Routes>
         <Route path="/" element={<Products addToCart={addToCart}/>} />
-        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/:id" element={<ProductDetails addToCart={addToCart}/>} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems}/>} />
         <Route path="/profile" element={<Profile setLoggedIn={setLoggedIn} />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/orders" element={<PastOrders />} />
       </Routes>
-      </div>
+    </div>
   );
 }
 

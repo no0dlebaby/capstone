@@ -1,39 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import '../App.css';
 
+const Cart = ({ cartItems, setCartItems }) => {
 
-const Cart = ({cartItems}) => {
-  const [cartItems, setCartItems] = useState([]);
+  const handleRemove = (productId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  };
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: {
-          Authorization: token
-        }
-      };
-      try {
-        const response = await axios.get('http://localhost:8080/api/users/cart', config);
-        setCartItems(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchCart();
-  }, []);
+  const increaseQuantity = (productId) => {
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
+
+  const decreaseQuantity = (productId) => {
+    setCartItems(prevItems => 
+      prevItems.map(item => 
+        item.id === productId 
+          ? { ...item, quantity: Math.max(0, item.quantity - 1) } 
+          : item
+      ).filter(item => item.quantity > 0)
+    );
+  };
+
+  const handleCheckout = () => {
+    alert('thank you for your purchase!');
+    setCartItems([]);
+  };
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  if (cartItems.length === 0) {
+    return <p>Your cart is empty.</p>;
+  }
 
   return (
-    <div>
-      <h1>Your Cart</h1>
-      <ul>
-        {cartItems.map(item => (
-          <li key={item.product_id}>
-            {item.name} - ${item.price} (Quantity: {item.quantity})
-          </li>
-        ))}
-      </ul>
+    <div className="cart">
+      <h2>Your Cart</h2>
+      {cartItems.map((item) => (
+        <div key={item.id} className="cart-item">
+          <img src={item.image_url} alt={item.name} />
+          <div>
+            <h3>{item.name}</h3>
+            <p className="price">${item.price}</p>
+            <p>Quantity: {item.quantity}</p>
+          </div>
+          <div className="cart-item-controls">
+            <button onClick={() => decreaseQuantity(item.id)}>-</button>
+            <button onClick={() => increaseQuantity(item.id)}>+</button>
+            <button onClick={() => handleRemove(item.id)}>Remove</button>
+          </div>
+        </div>
+      ))}
+      <h3>Total: ${getTotalPrice().toFixed(2)}</h3>
+      <button className="checkout-button" onClick={handleCheckout}>Checkout</button>
     </div>
   );
 };

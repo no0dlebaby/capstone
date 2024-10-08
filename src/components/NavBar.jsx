@@ -10,7 +10,7 @@ const Header = ({loggedIn}) => {
             {loggedIn ? (
                     <Link to="/profile">Profile</Link>
             ) : (
-                <Link to="/login">Login</Link>
+                <Link to="/login">Log in</Link>
             )}
             <Link to="/cart">Cart</Link>
         </nav>
