@@ -82,7 +82,7 @@ nav a:hover {
 .product-card {
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: rgb(203, 219, 255) 0px 1px 2px 0px, rgb(255, 221, 221) 0px 2px 6px 2px;
   width: 300px;
   margin: 1rem;
   text-align: center;
@@ -117,25 +117,23 @@ nav a:hover {
 }
 
 .product-card button {
+  border: 2px #f1b24a, solid;
+  border-radius: 79% 21% 37% 63% / 42% 66% 34% 58%;
+  padding: 5%;
   background-color: #f1b24a;
   color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
   transition: background-color 300ms;
-  margin-top: 1rem;
 }
 
 .log-out-button{
+  border: 2px #f1b24a, solid;
+  border-radius: 66% 34% 67% 33% / 42% 37% 63% 58%;
+  padding: 3%;
   background-color: #f1b24a;
   color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
   transition: background-color 300ms;
-  margin-top: 1rem;
 }
 .cart-buttons {
   background-color: #f1b24a;
@@ -161,12 +159,11 @@ nav a:hover {
 }
 
 .category-button {
-  background-color: #c1945c;
+  border: 2px #f1b24a, solid;
+  border-radius: 79% 21% 37% 63% / 42% 66% 34% 58%;
+  padding: 70%;
+  background-color: #f1b24a;
   color: white;
-  padding: 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
   cursor: pointer;
   transition: background-color 300ms;
 }
@@ -232,23 +229,67 @@ form input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  margin: 2%;
 }
 
 form button {
-  width: 100%;
+  border: 2px #f1b24a, solid;
+  border-radius: 75% 25% 77% 23% / 46% 59% 41% 54%;
+  padding: 5%;
   background-color: #f1b24a;
   color: white;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
+  margin-top: 10%;
   cursor: pointer;
   transition: background-color 300ms;
+  margin-left: 5%;
 }
 
 form button:hover {
   background-color: #c1945c;
 }
+
+/* register form page */
+.register-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  background-color: #fff;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.register-container h1 {
+  margin-bottom: 1.5rem;
+}
+
+.register-container div {
+  margin-bottom: 1rem;
+}
+
+.register-container input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 2%;
+}
+
+.register-container button {
+  border: 2px solid #f1b24a;
+  border-radius: 75% 25% 77% 23% / 46% 59% 41% 54%;
+  padding: 5%;
+  background-color: #f1b24a;
+  color: white;
+  margin-top: 10%;
+  cursor: pointer;
+  transition: background-color 300ms;
+  margin-left: 5%;
+}
+
+.register-container button:hover {
+  background-color: #c1945c;
+}
+
 
 /* Product Details Page */
 .product-details {
@@ -256,8 +297,9 @@ form button:hover {
   text-align: center;
   border: 2px white solid;
   border-radius: 33% 67% 53% 47% / 35% 51% 49% 65% ;
-  padding: 10%;
-  margin-top: 10%;
+  padding: 6%;
+  margin: 10%;
+
 }
 
 .product-details img {
@@ -301,7 +343,7 @@ form button:hover {
 /* footr section*/
 .footer {
   text-align: center;
-  margin-top: 10%;
+  margin-top: 12%;
   background-color: #ffffff;
   padding: 80px;
   text-align: center;
@@ -312,6 +354,7 @@ form button:hover {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  margin-top: 5%;
 }
 
 .footer-section {
@@ -343,4 +386,27 @@ form button:hover {
   margin-top: 20px;
   font-size: 0.9em;
   color: #6c757d;
+}
+
+.banner {
+  background-color: #ffffff;
+  color: rgb(96, 45, 0);
+  text-align: center;
+  padding: 0.1% 0;
+  position: relative;
+  font-weight: bold;
+  font-size: 1.2rem;
+  animation: slideIn 0.5s ease-in-out;
+  border-radius:33% 67% 53% 47% / 35% 51% 49% 65%;
+}
+
+@keyframes slideIn {
+  from {
+      transform: translateY(-100%);
+      opacity: 0;
+  }
+  to {
+      transform: translateY(0);
+      opacity: 1;
+  }
 }

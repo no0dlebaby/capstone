@@ -41,14 +41,14 @@ function Categories() {
       <br />
       {categories.length > 0 ? (
         categories.map((category) => (
-          <Link key={category.id} to={`/categories/${category.id}`}>
+          <Link key={category.id} to={`/categories/${category.name}`}>
             <button className="category-button">
               {category.name}
             </button>
           </Link>
         ))
       ) : (
-        <p>No categories available</p>
+        <p>no categories available</p>
       )}
     </div>
   );

@@ -3,10 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import '../App.css';
 
 function CategoryProducts({ addToCart }) {
-  const { categoryId } = useParams(); // Get the category ID from the URL
+
+  const { categoryId } = useParams()
   const [products, setProducts] = useState([]);
   const [addedToCart, setAddedToCart] = useState({});
-
   const handleAddToCart = (product) => {
     addToCart(product);
 
@@ -26,6 +26,7 @@ function CategoryProducts({ addToCart }) {
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       try {
+
         const response = await fetch(`http://localhost:2445/api/products?category=${categoryId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch products');
@@ -42,7 +43,6 @@ function CategoryProducts({ addToCart }) {
 
   return (
     <div className="products-container">
-      <h1>Products in this Category</h1>
       {products.length > 0 ? (
         products.map(product => (
           <div className="product-card" key={product.id}>

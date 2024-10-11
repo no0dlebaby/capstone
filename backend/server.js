@@ -66,8 +66,8 @@ const init = async()=>{
 
     const SQL2=`
     INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'food');
-    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'toys');
-    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'beds');
+    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'toy');
+    INSERT INTO categories (id, name) VALUES (gen_random_uuid(), 'bed');
 
 
     INSERT INTO users (id, username, password, email)
@@ -89,34 +89,43 @@ const init = async()=>{
     })
 
 //putting in fake products
-const seedProducts = async () => {
-  const categories = ['Toys', 'Food', 'Beds'];
-  const petProductNames = [
-    'Chew Toy', 'Squeaky Ball', 'Pet Bed', 'Cat Scratching Post', 'Dog Leash',
-    'Lick Mat', 'Slow Feeder', 'Meal Toppers', 'Pet Shampoo', 'Dog Treats',
-    'Cat Food', 'Dog Bowl', 'Pet Carrier', 'Pet Blanket', 'Dog Bandana'
-  ];
-  
-  for (let i = 1; i < 19; i++) {
-    const name = petProductNames[Math.floor(Math.random() * petProductNames.length)];
-    const description = faker.lorem.sentence();
-    const price = (Math.random() * (50 - 5) + 5).toFixed(2)
-    const stock = faker.number.int({ min: 0, max: 500 });
-    const category = categories[Math.floor(Math.random() * categories.length)];
-    const photoUrl = `https://placedog.net/500/500?id=${i}`
+const seedProducts=async()=>{
+  const products = [
+    {name:'knot rope toy', category:'toy', photo:'/photos/pet-toy.webp'},
+    {name:'slow feeder', category:'food', photo:'/photos/slow-feeder.webp'},
+    {name:'pet bed', category:'bed', photo:'/photos/pet-bed.webp'},
+    {name:'stairs', category:'bed', photo:'/photos/stairs.png'},
+    {name:'bowl', category:'food', photo:'/photos/pet-bowl.webp'},
+    {name:'burrow toy', category:'toy', photo:'/photos/burrow-toy.webp'},
+    {name:'leash', category:'toy', photo:'/photos/dog-leash1.webp'},
+    {name:'scracthing post', category:'toy', photo:'/photos/cat-post.webp'},
+    {name:'cat food', category:'food', photo:'/photos/cat-food.webp'},
+    {name:'blanket', category:'bed', photo:'/photos/blanket.webp'},
+    {name:'cat food', category:'food', photo:'/photos/cat--food.jpg'},
+    {name:'head rest', category:'bed', photo:'/photos/head-rest.webp'},
+    {name:'puppy bib', category:'food', photo:'/photos/puppy-bib.avif'},
+    {name:'sweater', category:'toy', photo:'/photos/sweater.webp'},
+    {name:'cherry toy', category:'toy', photo:'/photos/toy.webp'}
+  ]
+  for(let i =0;i<products.length;i++){
+    const {name, category,photo}=products[i]
+    const description=faker.lorem.sentence()
+    const price=(Math.random()*(50-5)+5).toFixed(2)
+    const stock = faker.number.int({min:0,max:500})
 
     const SQL = `
       INSERT INTO products (id, name, description, price, stock, category_id, photo_url)
       VALUES (gen_random_uuid(), $1, $2, $3, $4, (SELECT id FROM categories WHERE name = $5), $6)
-    `;
-    
-    await client.query(SQL, [name, description, price, stock, category, photoUrl]);
+      `
+
+    await client.query(SQL, [name, description, price, stock, category, photo]);
   }
-};
+}
 
 await seedProducts();
-
 }
+
+
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization']
@@ -143,13 +152,23 @@ const verifyToken = (req, res, next) => {
 //ROUTES
 //get to products (home page)
 app.get('/api/products', async (req, res) => {
-    try {
-        const result = await client.query('SELECT * FROM products')
-        res.json(result.rows)
-    } catch (err) {
-        res.status(500).json({error:err.message})
-    }
-})
+  const category = req.query.category;
+  try {
+      let SQL = 'SELECT * FROM products';
+      const params = [];
+
+      if (category) {
+          SQL += ' WHERE category_id = (SELECT id FROM categories WHERE name = $1)';
+          params.push(category);
+      }
+
+      const result = await client.query(SQL, params);
+      res.json(result.rows);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+});
+
 //get details of a specific product
 app.get('/api/products/:id', async (req,res)=>{
     try{
@@ -163,6 +182,8 @@ app.get('/api/products/:id', async (req,res)=>{
         res.status(500).json({error:err.message})
     }
 })
+
+
 //get all categories
 app.get('/api/categories', async (req, res, next)=>{
     try {
@@ -173,6 +194,37 @@ app.get('/api/categories', async (req, res, next)=>{
         res.status(500).send({ error: error.message });
     }
 })
+app.get('/api/categories/food', async (req, res, next) => {
+  try {
+      const SQL = `SELECT * FROM categories WHERE name = 'food'`;
+      const response = await client.query(SQL);
+      res.send(response.rows);
+  } catch (error) {
+      res.status(500).send({ error: error.message });
+  }
+});
+
+// Get toys category
+app.get('/api/categories/toys', async (req, res, next) => {
+  try {
+      const SQL = `SELECT * FROM categories WHERE name = 'toy'`;
+      const response = await client.query(SQL);
+      res.send(response.rows);
+  } catch (error) {
+      res.status(500).send({ error: error.message });
+  }
+});
+
+// Get beds category
+app.get('/api/categories/beds', async (req, res, next) => {
+  try {
+      const SQL = `SELECT * FROM categories WHERE name = 'beds'`;
+      const response = await client.query(SQL);
+      res.send(response.rows);
+  } catch (error) {
+      res.status(500).send({ error: error.message });
+  }
+});
 
 // get users cart
 app.get('/api/users/cart', verifyToken, async (req, res )=>{

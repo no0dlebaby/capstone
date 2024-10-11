@@ -1,6 +1,6 @@
 import './App.css'
 import Products from './components/Products'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import React, { useEffect, useState } from 'react'
 import ProductDetails from './components/ProductDetails'
 import Categories from './components/Categories'
@@ -11,6 +11,7 @@ import Profile from './components/Profile'
 import Register from './components/Register';
 import CategoryProducts from './components/CategoryProducts';
 import Footer from './components/Footer';
+import Banner from './components/Banner';
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <div>
+      <Banner />
       <NavBar loggedIn={loggedIn} />
       <Routes>
         <Route path="/" element={<Products addToCart={addToCart}/>} />
